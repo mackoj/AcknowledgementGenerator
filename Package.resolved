@@ -1,0 +1,25 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Mustache",
+        "repositoryURL": "https://github.com/groue/GRMustache.swift",
+        "state": {
+          "branch": null,
+          "revision": "671e2c5234e829c1f337c9d300bd6d9b21d1c42a",
+          "version": "4.0.1"
+        }
+      },
+      {
+        "package": "swift-argument-parser",
+        "repositoryURL": "https://github.com/apple/swift-argument-parser",
+        "state": {
+          "branch": null,
+          "revision": "986d191f94cec88f6350056da59c2e59e83d1229",
+          "version": "0.4.3"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

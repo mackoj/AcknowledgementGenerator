@@ -1,0 +1,20 @@
+struct Acknowledgements: View {
+{{#pkg}}
+  func ack_{{funcFormat(name)}}() -> some View {
+    VStack {
+      Text("""
+      {{license}}
+      """).padding()
+      Spacer()
+    }
+  }
+{{/pkg}}
+  
+  var body: some View {
+    Form {
+{{#pkg}}
+      NavigationLink("{{name}}", destination: ack_{{funcFormat(name)}}())
+{{/pkg}}
+    }
+  }
+}

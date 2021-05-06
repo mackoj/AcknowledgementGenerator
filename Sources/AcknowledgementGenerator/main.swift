@@ -1,0 +1,1 @@
+AcknowledgementGenerator.main()
