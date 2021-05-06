@@ -1,6 +1,8 @@
+import SwiftUI
+
 struct Acknowledgements: View {
 {{#pkg}}
-  func ack_{{funcFormat(name)}}() -> some View {
+  func ack_{{functionFormatter(name)}}() -> some View {
     VStack {
       Text("""
       {{license}}
@@ -13,7 +15,7 @@ struct Acknowledgements: View {
   var body: some View {
     Form {
 {{#pkg}}
-      NavigationLink("{{name}}", destination: ack_{{funcFormat(name)}}())
+      NavigationLink("{{name}}", destination: ack_{{functionFormatter(name)}}())
 {{/pkg}}
     }
   }

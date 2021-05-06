@@ -17,5 +17,5 @@ struct AcknowledgementGenerator: ParsableCommand {
   var outputDirectoryPath: String = "."
 
   @Option(help: "Output file name")
-  var outputFileName: String = "AcknowledgementView.swift"
+  var outputFileName: String = "Acknowledgements.swift"
 }

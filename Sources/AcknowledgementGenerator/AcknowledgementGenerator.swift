@@ -1,80 +1,6 @@
 import Foundation
 import Mustache
 
-extension String: Error {}
-
-extension String: LocalizedError {
-  public var errorDescription: String? { self }
-}
-
-extension URLSession {
-  func synchronousDataTask(with url: URL) -> (Data?, URLResponse?, Error?) {
-    var data: Data?
-    var response: URLResponse?
-    var error: Error?
-    
-    let semaphore = DispatchSemaphore(value: 0)
-    
-    let dataTask = self.dataTask(with: url) {
-      data = $0
-      response = $1
-      error = $2
-      semaphore.signal()
-    }
-    dataTask.resume()
-    _ = semaphore.wait(timeout: .distantFuture)
-    return (data, response, error)
-  }
-  
-  func synchronousDataTask(with request: URLRequest) -> (Data?, URLResponse?, Error?) {
-    var data: Data?
-    var response: URLResponse?
-    var error: Error?
-    
-    let semaphore = DispatchSemaphore(value: 0)
-    
-    let dataTask = self.dataTask(with: request) {
-      data = $0
-      response = $1
-      error = $2
-      semaphore.signal()
-    }
-    dataTask.resume()
-    _ = semaphore.wait(timeout: .distantFuture)
-    return (data, response, error)
-  }
-}
-
-extension FileManager {
-  func directoryExistsAtPath(_ path: String) -> Bool {
-    var isDirectory = ObjCBool(true)
-    let exists = FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory)
-    return exists && isDirectory.boolValue
-  }
-}
-
-struct PackageInfo: MustacheBoxable {
-  let name: String
-  let license: String
-  
-  var mustacheBox: MustacheBox {
-    return Box([
-      "name": self.name,
-      "license": self.license
-    ])
-  }
-}
-
-class FuncFormatter : Formatter {
-  override func string(for obj: Any?) -> String? {
-    if var pkgName = obj as? String {
-      pkgName.removeAll { $0.isLetter == false }
-      return pkgName.lowercased()
-    }
-    return nil
-  }
-}
-
 extension AcknowledgementGenerator {
   func githubInfo(_ repoURL: URL) throws -> (username: String, project: String) {
     if repoURL.pathComponents.count < 3 { throw("Invalide URL") }
@@ -121,8 +47,8 @@ extension AcknowledgementGenerator {
   
   func renderTemplate(_ templatePath: String, _ packageInfos: [PackageInfo]) throws -> String {
     let template = try Template(path: templatePath)
-    let funcFormatter = FuncFormatter()
-    template.register(funcFormatter, forKey: "funcFormat")
+    let functionFormatter = FunctionFormatter()
+    template.register(functionFormatter, forKey: "functionFormatter")
 
     let data: [String: Any] = [
       "pkg": packageInfos
@@ -133,7 +59,6 @@ extension AcknowledgementGenerator {
   
   func render(_ resolvedPackagePath: String, _ templatePath: String, _ outputPath : URL) throws {
     let packageInfos = try loadPackageInfo(resolvedPackagePath)
-//    let packageInfos = [PackageInfo(name: "jeff", license: "mit")]
     let rendering = try renderTemplate(templatePath, packageInfos)
     
     try rendering.write(
