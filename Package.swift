@@ -9,12 +9,14 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", from: "0.4.3"),
     .package(name: "Mustache", url: "https://github.com/groue/GRMustache.swift", from: "4.0.1"),
+    .package(name: "HTMLString", url: "https://github.com/alexisakers/HTMLString", from: "6.0.1")
   ],
   targets: [
     .target(
       name: "AcknowledgementGenerator",
       dependencies: [
         "Mustache",
+        "HTMLString",
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
       ]),
     .testTarget(

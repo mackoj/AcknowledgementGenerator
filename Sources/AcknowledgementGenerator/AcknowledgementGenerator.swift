@@ -1,5 +1,6 @@
 import Foundation
 import Mustache
+import HTMLString
 
 extension AcknowledgementGenerator {
   func githubInfo(_ repoURL: URL) throws -> (username: String, project: String) {
@@ -25,11 +26,11 @@ extension AcknowledgementGenerator {
           let res = URLSession.shared.synchronousDataTask(with: request)
           if let licenseData = res.0 {
             if let licenseString = String(data: licenseData, encoding: .utf8),
-               let decodedData = licenseString.decodingHTMLEntities().data(using: .utf8),
+               let decodedData = licenseString.removingHTMLEntities().data(using: .utf8),
                let ghError = try? JSONDecoder().decode(GithubError.self, from: decodedData) {
               print("\(name) failed to get license reason: \(ghError.message)")
             } else if let license = String(data: licenseData, encoding: .utf8) {
-              return PackageInfo(name: name, author: info.username, license: license.decodingHTMLEntities())
+              return PackageInfo(name: name, author: info.username, license: license)
             }
           }
         } catch {
@@ -74,23 +75,30 @@ extension AcknowledgementGenerator {
     groupPKGS.append(group)
 
     let data: [String: Any] = [
-      "grouppkg": groupPKGS
+      "grouppkg": groupPKGS,
+      "header": header,
+      "footer": footer
     ]
     
     print("Rendering template file")
-    return try template.render(data)
+    return try template.render(data).removingHTMLEntities()
   }
   
   func render(_ resolvedPackagePath: String, _ templatePath: String, _ outputPath : URL) throws {
     let packageInfos: [PackageInfo]!
     if debugMode {
-      packageInfos = [PackageInfo(name: "toto", author: "jeff", license: "mit")]
+      packageInfos = [PackageInfo(name: "toto", author: "jeff", license: "mit\nTHE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR")]
     } else {
       packageInfos = try loadPackageInfo(resolvedPackagePath)
     }
     
     let rendering = try renderTemplate(templatePath, packageInfos)
     
+    if deleteOriginal {
+      print("Delete output file(\(outputPath))")
+      try FileManager.default.removeItem(at: outputPath)
+    }
+
     print("Write output file(\(outputPath))")
     try rendering.write(
       to: outputPath,

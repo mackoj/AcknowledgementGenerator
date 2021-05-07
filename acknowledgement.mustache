@@ -13,6 +13,11 @@ struct Acknowledgements: View {
 
   var body: some View {
     Form {
+  Section(
+ header: Text("{{header}}")
+ .font(.body)
+ .padding(),
+  footer: Text("{{footer}}")) {
 {{#grouppkg}}
       Group {
 {{#pkg}}
@@ -27,6 +32,7 @@ struct Acknowledgements: View {
 {{/pkg}}
       }
 {{/grouppkg}}
+ }.navigationTitle("Acknowledgements")
     }
   }
 }
