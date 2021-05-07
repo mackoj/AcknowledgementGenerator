@@ -24,7 +24,9 @@ extension AcknowledgementGenerator {
           request.addValue("application/vnd.github.VERSION.raw", forHTTPHeaderField: "Accept")
           let res = URLSession.shared.synchronousDataTask(with: request)
           if let licenseData = res.0 {
-            if let ghError = try? JSONDecoder().decode(GithubError.self, from: licenseData) {
+            if let licenseString = String(data: licenseData, encoding: .utf8),
+               let decodedData = licenseString.decodingHTMLEntities().data(using: .utf8),
+               let ghError = try? JSONDecoder().decode(GithubError.self, from: decodedData) {
               print("\(name) failed to get license reason: \(ghError.message)")
             } else if let license = String(data: licenseData, encoding: .utf8) {
               return PackageInfo(name: name, author: info.username, license: license)
@@ -52,10 +54,8 @@ extension AcknowledgementGenerator {
     return packageInfos
   }
   
-  
-  
   func renderTemplate(_ templatePath: String, _ packageInfos: [PackageInfo]) throws -> String {
-    print("Loading template file(\(templatePath)")
+    print("Loading template file(\(templatePath))")
     let template = try Template(path: templatePath)
     let functionFormatter = FunctionFormatter()
     template.register(functionFormatter, forKey: "functionFormatter")
@@ -91,7 +91,7 @@ extension AcknowledgementGenerator {
     
     let rendering = try renderTemplate(templatePath, packageInfos)
     
-    print("Write output file(\(outputPath)")
+    print("Write output file(\(outputPath))")
     try rendering.write(
       to: outputPath,
       atomically: true,
