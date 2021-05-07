@@ -71,7 +71,13 @@ extension AcknowledgementGenerator {
   }
   
   func render(_ resolvedPackagePath: String, _ templatePath: String, _ outputPath : URL) throws {
-    let packageInfos = try loadPackageInfo(resolvedPackagePath)
+    let packageInfos: [PackageInfo]!
+    if debugMode {
+      packageInfos = [PackageInfo(name: "toto", author: "jeff", license: "mit")]
+    } else {
+      packageInfos = try loadPackageInfo(resolvedPackagePath)
+    }
+    
     let rendering = try renderTemplate(templatePath, packageInfos)
     
     print("Write output file(\(outputPath)")
@@ -95,5 +101,6 @@ extension AcknowledgementGenerator {
       .appendingPathComponent(outputFileName)
     
     try render(resolvedPackagePath, templatePath, outputPath)
+    print("Finished")
   }
 }

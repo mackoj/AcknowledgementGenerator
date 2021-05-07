@@ -18,4 +18,7 @@ struct AcknowledgementGenerator: ParsableCommand {
 
   @Option(help: "Output file name")
   var outputFileName: String = "Acknowledgements.swift"
+  
+  @Flag(help: "debug mode")
+  var debugMode: Bool = false
 }

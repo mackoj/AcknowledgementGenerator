@@ -87,6 +87,10 @@
             argument = " --output-directory-path &quot;/Users/jeffreymacko/code/jayandjay/AcknowledgementGenerator&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--debug-mode"
+            isEnabled = "YES">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction

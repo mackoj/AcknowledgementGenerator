@@ -2,20 +2,26 @@ import SwiftUI
 
 struct Acknowledgements: View {
 {{#pkg}}
-  func ack_{{functionFormatter(name)}}() -> some View {
-    VStack {
-      Text("""
+  func ack_{{functionFormatter(name)}}() -> String {
+"""
 {{license}}
-""").padding()
-      Spacer()
-    }
+"""
   }
 {{/pkg}}
-  
+
   var body: some View {
     Form {
 {{#pkg}}
-      NavigationLink("{{name}}", destination: ack_{{functionFormatter(name)}}())
+      Group {
+      NavigationLink("{{name}}", destination: ScrollView {
+        VStack {
+          Text(ack_{{functionFormatter(name)}}())
+            .lineLimit(nil)
+            .padding()
+          Spacer()
+        }
+      })
+      }
 {{/pkg}}
     }
   }
