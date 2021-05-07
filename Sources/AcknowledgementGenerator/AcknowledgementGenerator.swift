@@ -1,11 +1,10 @@
 import Foundation
 import Mustache
-//import Algorithms
 
 extension AcknowledgementGenerator {
   func githubInfo(_ repoURL: URL) throws -> (username: String, project: String) {
-    if repoURL.pathComponents.count < 3 { throw("Invalide URL") }
-    guard let projetPathWithExtension = repoURL.pathComponents.last else { throw("Not a valid URL") }
+    if repoURL.pathComponents.count < 3 { throw("URL pathComponents count is < 3") }
+    guard let projetPathWithExtension = repoURL.pathComponents.last else { throw("Last pathComponents is nil") }
     let projet = projetPathWithExtension.replacingOccurrences(of: ".git", with: "")
     
     let usernameIndex = repoURL.pathComponents.index(before: repoURL.pathComponents.endIndex)
