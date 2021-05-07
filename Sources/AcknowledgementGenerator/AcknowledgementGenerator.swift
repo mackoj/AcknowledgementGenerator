@@ -24,8 +24,12 @@ extension AcknowledgementGenerator {
           request.allHTTPHeaderFields = [:]
           request.addValue("application/vnd.github.VERSION.raw", forHTTPHeaderField: "Accept")
           let res = URLSession.shared.synchronousDataTask(with: request)
-          if let licenseData = res.0, let license = String(data: licenseData, encoding: .utf8) {
-            return PackageInfo(name: name, author: info.username, license: license)
+          if let licenseData = res.0 {
+            if let ghError = try? JSONDecoder().decode(GithubError.self, from: licenseData) {
+              print("\(name) failed to get license reason: \(ghError.message)")
+            } else if let license = String(data: licenseData, encoding: .utf8) {
+              return PackageInfo(name: name, author: info.username, license: license)
+            }
           }
         } catch {
           print(error.localizedDescription)
@@ -57,11 +61,6 @@ extension AcknowledgementGenerator {
     let functionFormatter = FunctionFormatter()
     template.register(functionFormatter, forKey: "functionFormatter")
 
-//    packageInfos.reduce(into: [GroupPackageInfo]) { res, pkg in
-//      if res.count < 10 {
-//        res.a
-//      }
-//    }
     var groupPKGS: [GroupPackageInfo] = []
     var group: GroupPackageInfo = GroupPackageInfo(pkg: [])
     for pkg in packageInfos {
