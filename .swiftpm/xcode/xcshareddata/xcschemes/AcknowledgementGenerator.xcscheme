@@ -84,7 +84,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = " --output-directory-path &quot;/Users/jeffreymacko/code/jayandjay/AcknowledgementGenerator&quot;"
+            argument = " --output-directory-path &quot;/tmp&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
