@@ -29,7 +29,7 @@ extension AcknowledgementGenerator {
                let ghError = try? JSONDecoder().decode(GithubError.self, from: decodedData) {
               print("\(name) failed to get license reason: \(ghError.message)")
             } else if let license = String(data: licenseData, encoding: .utf8) {
-              return PackageInfo(name: name, author: info.username, license: license)
+              return PackageInfo(name: name, author: info.username, license: license.decodingHTMLEntities())
             }
           }
         } catch {
