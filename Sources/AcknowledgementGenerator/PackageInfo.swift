@@ -2,11 +2,11 @@ import Foundation
 import Mustache
 
 struct GroupPackageInfo: MustacheBoxable {
-  let pkgs: [PackageInfo]
+  var pkg: [PackageInfo]
   
   var mustacheBox: MustacheBox {
     return Box([
-      "pkgs": self.pkgs,
+      "pkg": self.pkg,
     ])
   }
 }

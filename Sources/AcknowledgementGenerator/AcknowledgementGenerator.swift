@@ -62,8 +62,21 @@ extension AcknowledgementGenerator {
 //        res.a
 //      }
 //    }
+    var groupPKGS: [GroupPackageInfo] = []
+    var group: GroupPackageInfo = GroupPackageInfo(pkg: [])
+    for pkg in packageInfos {
+      if group.pkg.count < 10 {
+        group.pkg.append(pkg)
+      }
+      if group.pkg.count == 10 {
+        groupPKGS.append(group)
+        group = GroupPackageInfo(pkg: [])
+      }
+    }
+    groupPKGS.append(group)
+
     let data: [String: Any] = [
-      "pkg": packageInfos
+      "grouppkg": groupPKGS
     ]
     
     print("Rendering template file")

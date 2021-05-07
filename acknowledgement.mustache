@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct Acknowledgements: View {
+{{#grouppkg}}
 {{#pkg}}
   func ack_{{functionFormatter(name)}}() -> String {
 """
@@ -8,11 +9,13 @@ struct Acknowledgements: View {
 """
   }
 {{/pkg}}
+{{/grouppkg}}
 
   var body: some View {
     Form {
-{{#pkg}}
+{{#grouppkg}}
       Group {
+{{#pkg}}
       NavigationLink("{{name}}", destination: ScrollView {
         VStack {
           Text(ack_{{functionFormatter(name)}}())
@@ -21,8 +24,9 @@ struct Acknowledgements: View {
           Spacer()
         }
       })
-      }
 {{/pkg}}
+      }
+{{/grouppkg}}
     }
   }
 }
