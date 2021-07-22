@@ -1,16 +1,6 @@
 import SwiftUI
 
 struct Acknowledgements: View {
-{{#grouppkg}}
-{{#pkg}}
-  func ack_{{functionFormatter(name)}}() -> String {
-"""
-{{license}}
-"""
-  }
-{{/pkg}}
-{{/grouppkg}}
-
   var body: some View {
     Form {
   Section(
@@ -35,4 +25,16 @@ struct Acknowledgements: View {
  }.navigationTitle("Acknowledgements")
     }
   }
+  
+  // MARK: - Licenses
+  
+  {{#grouppkg}}
+{{#pkg}}
+  func ack_{{functionFormatter(name)}}() -> String {
+"""
+{{license}}
+"""
+  }
+{{/pkg}}
+{{/grouppkg}}
 }

@@ -72,7 +72,9 @@ extension AcknowledgementGenerator {
         group = GroupPackageInfo(pkg: [])
       }
     }
-    groupPKGS.append(group)
+    if group.pkg.isEmpty == false {
+      groupPKGS.append(group)
+    }
 
     let data: [String: Any] = [
       "grouppkg": groupPKGS,
