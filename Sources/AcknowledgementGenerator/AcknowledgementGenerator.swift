@@ -13,26 +13,31 @@ extension AcknowledgementGenerator {
     return (username, projet)
   }
   
+  func loadURL(_ repoURL: URL, _ name: String? = nil) throws -> PackageInfo? {
+    let info = try githubInfo(repoURL)
+    print("Loading license for \(info.project) by \(info.username)")
+    guard let licenseURL = URL(string: "https://api.github.com/repos/\(info.username)/\(info.project)/license") else { return nil }
+    var request = URLRequest(url: licenseURL)
+    request.allHTTPHeaderFields = [:]
+    request.addValue("application/vnd.github.VERSION.raw", forHTTPHeaderField: "Accept")
+    let res = URLSession.shared.synchronousDataTask(with: request)
+    if let licenseData = res.0 {
+      if let licenseString = String(data: licenseData, encoding: .utf8),
+         let decodedData = licenseString.removingHTMLEntities().data(using: .utf8),
+         let ghError = try? JSONDecoder().decode(GithubError.self, from: decodedData) {
+        print("\(name ?? info.project) failed to get license reason: \(ghError.message)")
+      } else if let license = String(data: licenseData, encoding: .utf8) {
+        return PackageInfo(name: name ?? info.project, author: info.username, license: license)
+      }
+    }
+    return nil
+  }
+  
   func convertPins(_ pins: [PKGPin]) -> [PackageInfo] {
     return pins.compactMap { pin -> PackageInfo? in
       if let name = pin.package, let repo = pin.repositoryURL, let repoURL = URL(string: repo) {
         do {
-          let info = try githubInfo(repoURL)
-          print("Loading license for \(info.project) by \(info.username)")
-          guard let licenseURL = URL(string: "https://api.github.com/repos/\(info.username)/\(info.project)/license") else { return nil }
-          var request = URLRequest(url: licenseURL)
-          request.allHTTPHeaderFields = [:]
-          request.addValue("application/vnd.github.VERSION.raw", forHTTPHeaderField: "Accept")
-          let res = URLSession.shared.synchronousDataTask(with: request)
-          if let licenseData = res.0 {
-            if let licenseString = String(data: licenseData, encoding: .utf8),
-               let decodedData = licenseString.removingHTMLEntities().data(using: .utf8),
-               let ghError = try? JSONDecoder().decode(GithubError.self, from: decodedData) {
-              print("\(name) failed to get license reason: \(ghError.message)")
-            } else if let license = String(data: licenseData, encoding: .utf8) {
-              return PackageInfo(name: name, author: info.username, license: license)
-            }
-          }
+          return try loadURL(repoURL, name)
         } catch {
           print(error.localizedDescription)
           return nil
@@ -86,13 +91,18 @@ extension AcknowledgementGenerator {
     return try template.render(data).removingHTMLEntities()
   }
   
-  func render(_ resolvedPackagePath: String, _ templatePath: String, _ outputPath : URL) throws {
-    let packageInfos: [PackageInfo]!
+  func render(_ resolvedPackagePath: String, _ templatePath: String, _ outputPath : URL, _ otherURLS: [URL]) throws {
+    var packageInfos: [PackageInfo] = []
     if debugMode {
       packageInfos = [PackageInfo(name: "toto", author: "jeff", license: "mit\nTHE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR")]
     } else {
       packageInfos = try loadPackageInfo(resolvedPackagePath)
     }
+    
+    let otherPkg = otherURLS.compactMap { pkgUrl -> PackageInfo? in
+      return try? loadURL(pkgUrl)
+    }
+    packageInfos.append(contentsOf: otherPkg)
     
     let rendering = try renderTemplate(templatePath, packageInfos)
     
@@ -121,7 +131,8 @@ extension AcknowledgementGenerator {
     let outputPath = URL(fileURLWithPath: outputDirectoryPath)
       .appendingPathComponent(outputFileName)
     
-    try render(resolvedPackagePath, templatePath, outputPath)
+    let validURLS = urls.compactMap { $0 }
+    try render(resolvedPackagePath, templatePath, outputPath, validURLS)
     print("Finished")
   }
 }
