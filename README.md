@@ -5,7 +5,7 @@ This tool will generate a SwiftUI view with the acknowledgement of license of al
 It is configurable and easy to change with a template mechanism for the generated code.
 
 ```
-swift run AcknowledgementGenerator ../Project/Project.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved acknowledgement.mustache --output-directory-path ../Project/Shared/Views
+swift run AcknowledgementGenerator ../Project/Project.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved acknowledgement.mustache --output-directory-path ../Project/Shared/Views --urls "https://github.com/adobe-fonts/source-code-pro"
 ```
 
 ## Todo
@@ -17,7 +17,6 @@ swift run AcknowledgementGenerator ../Project/Project.xcodeproj/project.xcworksp
 - tests
 - README.md
 - Handle other provider Gitlab
-- Handle direct license file download 
 - Improve UI of Acknowledgements.swift
 - Get contributors name to thanks them
 
