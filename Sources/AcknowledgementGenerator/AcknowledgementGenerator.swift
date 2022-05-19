@@ -50,7 +50,6 @@ extension AcknowledgementGenerator {
   
   
   func handlePackageVersion1(_ resolvedPackagePath: String) throws -> [PackageInfo] {
-    print("Loading resolved package file(\(resolvedPackagePath))")
     let package = try JSONDecoder().decode(PKGPackageResolved.self, from: Data(contentsOf: URL(fileURLWithPath: resolvedPackagePath)))
     guard let pins = package.object?.pins, pins.isEmpty == false else { throw("No pins found") }
     
@@ -77,7 +76,6 @@ extension AcknowledgementGenerator {
   }
 
   func handlePackageVersion2(_ resolvedPackagePath: String) throws -> [PackageInfo] {
-    print("Loading resolved package file(\(resolvedPackagePath))")
     let package = try JSONDecoder().decode(PackageResolved2.self, from: Data(contentsOf: URL(fileURLWithPath: resolvedPackagePath)))
     guard let pins = package.pins, pins.isEmpty == false else { throw("No pins found") }
     
@@ -89,10 +87,14 @@ extension AcknowledgementGenerator {
   }
 
   func loadPackageInfo(_ resolvedPackagePath: String) throws -> [PackageInfo] {
-    do {
-      return try handlePackageVersion1(resolvedPackagePath)
-    } catch {
-      return try handlePackageVersion2(resolvedPackagePath)
+    print("Loading resolved package file(\(resolvedPackagePath))")
+    let packageVersion = try JSONDecoder().decode(PackageResolvedVersion.self, from: Data(contentsOf: URL(fileURLWithPath: resolvedPackagePath)))
+    guard let version = packageVersion.version else { fatalError("No version no decoding") }
+    print("PackageResolvedVersion: \(version)")
+    switch version {
+      case 1: return try handlePackageVersion1(resolvedPackagePath)
+      case 2: return try handlePackageVersion2(resolvedPackagePath)
+      default: return try handlePackageVersion2(resolvedPackagePath)
     }
   }
   
