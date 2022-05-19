@@ -48,7 +48,8 @@ extension AcknowledgementGenerator {
     
   }
   
-  func loadPackageInfo(_ resolvedPackagePath: String) throws -> [PackageInfo] {
+  
+  func handlePackageVersion1(_ resolvedPackagePath: String) throws -> [PackageInfo] {
     print("Loading resolved package file(\(resolvedPackagePath))")
     let package = try JSONDecoder().decode(PKGPackageResolved.self, from: Data(contentsOf: URL(fileURLWithPath: resolvedPackagePath)))
     guard let pins = package.object?.pins, pins.isEmpty == false else { throw("No pins found") }
@@ -58,6 +59,41 @@ extension AcknowledgementGenerator {
     guard packageInfos.isEmpty == false else { throw("No packageinfo found") }
     packageInfos.sort()
     return packageInfos
+  }
+
+  func convertPins(_ pins: [PackageResolved2.Pin]) -> [PackageInfo] {
+    return pins.compactMap { pin -> PackageInfo? in
+      if let name = pin.identity, let repo = pin.location, let repoURL = URL(string: repo) {
+        do {
+          return try loadURL(repoURL, name)
+        } catch {
+          print(error.localizedDescription)
+          return nil
+        }
+      }
+      return nil
+    }
+    
+  }
+
+  func handlePackageVersion2(_ resolvedPackagePath: String) throws -> [PackageInfo] {
+    print("Loading resolved package file(\(resolvedPackagePath))")
+    let package = try JSONDecoder().decode(PackageResolved2.self, from: Data(contentsOf: URL(fileURLWithPath: resolvedPackagePath)))
+    guard let pins = package.pins, pins.isEmpty == false else { throw("No pins found") }
+    
+    print("Loading license from Github")
+    var packageInfos = convertPins(pins)
+    guard packageInfos.isEmpty == false else { throw("No packageinfo found") }
+    packageInfos.sort()
+    return packageInfos
+  }
+
+  func loadPackageInfo(_ resolvedPackagePath: String) throws -> [PackageInfo] {
+    do {
+      return try handlePackageVersion1(resolvedPackagePath)
+    } catch {
+      return try handlePackageVersion2(resolvedPackagePath)
+    }
   }
   
   func renderTemplate(_ templatePath: String, _ packageInfos: [PackageInfo]) throws -> String {

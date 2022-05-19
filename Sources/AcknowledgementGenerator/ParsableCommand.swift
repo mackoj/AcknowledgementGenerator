@@ -14,7 +14,7 @@ struct AcknowledgementGenerator: ParsableCommand {
   var templatePath: String
   
   @Option(help: "Other URLs where to look to add acknoledgement from", transform: { URL(string: $0) })
-  var urls: [URL?]
+  var urls: [URL?] = []
   
   @Option(help: "Output directory path where the SwiftUI will be written")
   var outputDirectoryPath: String = "."
